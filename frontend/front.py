@@ -133,7 +133,6 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks, random
 
     if 'stop-timer' in button_id:
         try:
-            # Extract the index from the button ID ('stop-timer1-btn', 'stop-timer2-btn', 'stop-timer3-btn')
             match = re.search(r'stop-timer(\d+)-btn', button_id)
             if match:
                 index = int(match.group(1)) - 1
@@ -142,6 +141,7 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks, random
                     if len(stop_times) == 3:
                         random_state_value = int(random_state_text.split(":")[1].strip())
                         result = process_line(random_state_value)
+                        stop_times.clear()  # Clear stop_times after processing the line
                         return result
                     return f"Timer stopped {index + 1} times: {elapsed_time} ms"
             else:
@@ -166,14 +166,15 @@ def update_display(clear_clicks, timer_output, random_state_text):
         lines = []
         return "State cleared, ready for new session.", ""
 
+    line_recap = ""
+    hexagram_output = ""
+    hexagram_lines = []
+
     if len(lines) > 0:
         hexagram_lines = [render_hexagram_line(line) for line in lines[::-1]]
         line_recap = html.Div(children=[html.Div(f"Line {i+1}: {line}") for i, line in enumerate(lines)], className='my-3')
-        hexagram_output = html.Div(children=hexagram_lines)
-    else:
-        line_recap = ""
-        hexagram_output = ""
 
+    hexagram_details = []
     if len(lines) == 6:
         hexagram = get_hexagram()
         if hexagram:
@@ -187,6 +188,8 @@ def update_display(clear_clicks, timer_output, random_state_text):
                 *[html.Div(className='hexagram-section', children=f"Line: {detail}") for detail in hexagram[5:]]
             ]
             hexagram_output = html.Div(children=hexagram_lines + hexagram_details)
+        else:
+            hexagram_output = html.Div("Error fetching hexagram details", className='alert alert-danger')
 
     return line_recap, hexagram_output
 
