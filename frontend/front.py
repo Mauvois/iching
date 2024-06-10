@@ -5,32 +5,72 @@ import requests
 import time
 import re
 
-# Initialize the Dash app
-app = dash.Dash(__name__, external_stylesheets=['https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css'])
+# Initialize the Dash app with a theme and custom font
+app = dash.Dash(__name__, external_stylesheets=[
+    'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css',
+    'https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap'
+])
+
+app.index_string = '''
+<!DOCTYPE html>
+<html>
+    <head>
+        {%metas%}
+        <title>I Ching</title>
+        {%favicon%}
+        {%css%}
+        <style>
+            body {
+                font-family: 'Lato', sans-serif;
+            }
+            .hexagram-line {
+                height: 10px;
+                margin: 5px 0;
+            }
+            .hexagram-line.solid {
+                background-color: black;
+            }
+            .hexagram-line.broken {
+                background: linear-gradient(to right, black 40%, white 40%, white 60%, black 60%);
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+            <a class="navbar-brand text-white" href="#">I Ching</a>
+        </nav>
+        {%app_entry%}
+        <footer class="text-center mt-4">
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+    </body>
+</html>
+'''
 
 app.layout = html.Div([
-    html.Div([
-        html.H1("I Ching Digital Project", className="display-4 text-center my-4")
-    ], className="container"),
 
     html.Div([
-        html.H3("Step 1: Initialize Toss", className="mt-5"),
-        dcc.Input(id='question-input', type='text', placeholder='Enter your question:', className='form-control my-3'),
-        html.Button('Initialize Toss', id='init-toss-btn', n_clicks=0, className='btn btn-success my-3'),
-        html.Div(id='random-state-output', className='alert alert-info')
-    ], className="container"),
-
-    html.Div([
-        html.H3("Step 2: Generate Line", className="mt-5"),
-        html.Button('Start Timer', id='start-timer-btn', n_clicks=0, className='btn btn-success my-3'),
-        html.Div(id='timer-output', className='alert alert-info'),
         html.Div([
-            html.Button('Stop Timer 1', id='stop-timer1-btn', n_clicks=0, className='btn btn-danger mr-2'),
-            html.Button('Stop Timer 2', id='stop-timer2-btn', n_clicks=0, className='btn btn-danger mr-2'),
-            html.Button('Stop Timer 3', id='stop-timer3-btn', n_clicks=0, className='btn btn-danger')
-        ], className='my-3'),
-        html.Div(id='line-output', className='alert alert-info'),
-        html.Button('Clear', id='clear-btn', n_clicks=0, className='btn btn-primary my-3')
+            # html.H3("Step 1: Initialize Toss", className="mt-5 text-primary"),
+            dcc.Input(id='question-input', type='text', placeholder='Enter your question:', className='form-control my-3'),
+            html.Button('Initialize Toss', id='init-toss-btn', n_clicks=0, className='btn btn-success my-3'),
+            html.Div(id='random-state-output', className='alert alert-info')
+        ], className="container mb-4"),
+
+        html.Div([
+            html.H3("Generate 6 Lines", className="mt-5 text-primary"),
+            html.Button('Start Timer', id='start-timer-btn', n_clicks=0, className='btn btn-success my-3'),
+            html.Div(id='timer-output', className='alert alert-info'),
+            html.Div([
+                html.Button('Stop Timer 1', id='stop-timer1-btn', n_clicks=0, className='btn btn-danger mr-2'),
+                html.Button('Stop Timer 2', id='stop-timer2-btn', n_clicks=0, className='btn btn-danger mr-2'),
+                html.Button('Stop Timer 3', id='stop-timer3-btn', n_clicks=0, className='btn btn-danger')
+            ], className='my-3'),
+            html.Div(id='line-output', className='alert alert-info'),
+            html.Button('Clear', id='clear-btn', n_clicks=0, className='btn btn-primary my-3')
+        ], className="container mb-4")
     ], className="container"),
 
     html.Div(id='hexagram-output', className="container my-5")
@@ -85,12 +125,10 @@ def get_hexagram():
         return None
 
 def render_hexagram_line(line_value):
-    if line_value in [6, 8]:  # Yin line
-        return html.Div(className='hexagram-line broken', style={'height': '10px', 'margin': '5px 0', 'background': 'linear-gradient(to right, black 40%, white 40%, white 60%, black 60%)'})
-    elif line_value in [7, 9]:  # Yang line
-        return html.Div(className='hexagram-line solid', style={'height': '10px', 'margin': '5px 0', 'background-color': 'black'})
-    else:
-        return html.Div()
+    if line_value % 2 == 0:  # Yin line (broken)
+        return html.Div(className='hexagram-line broken')
+    else:  # Yang line (solid)
+        return html.Div(className='hexagram-line solid')
 
 # Callbacks
 @app.callback(
@@ -172,22 +210,22 @@ def update_display(clear_clicks, timer_output, random_state_text):
 
     if len(lines) > 0:
         hexagram_lines = [render_hexagram_line(line) for line in lines[::-1]]
-        line_recap = html.Div(children=[html.Div(f"Line {i+1}: {line}") for i, line in enumerate(lines)], className='my-3')
+        line_recap = html.Div(children=[html.Div(f"{i+1}: {line}") for i, line in enumerate(lines)], className='my-3')
 
     hexagram_details = []
     if len(lines) == 6:
         hexagram = get_hexagram()
         if hexagram:
             hexagram_details = [
-                html.Div(className='hexagram-title', children=hexagram[1]),
+                html.Div(className='hexagram-title text-danger', children=hexagram[1]),
                 html.Div(className='hexagram-detail', children=f"Hexagram Number: {hexagram[0]}"),
                 html.Div(className='hexagram-detail', children=f"Name: {hexagram[1]}"),
                 html.Div(className='hexagram-detail', children=f"Upper Trigram: {hexagram[2]}"),
                 html.Div(className='hexagram-detail', children=f"Lower Trigram: {hexagram[3]}"),
-                html.Div(className='hexagram-section', children=f"Judgment: {hexagram[4]}"),
-                *[html.Div(className='hexagram-section', children=f"Line: {detail}") for detail in hexagram[5:]]
+                html.Div(className='hexagram-section bg-light', children=f"Judgment: {hexagram[4]}"),
+                *[html.Div(className='hexagram-section bg-light', children=f"{detail}") for detail in hexagram[5:]]
             ]
-            hexagram_output = html.Div(children=hexagram_lines + hexagram_details)
+            hexagram_output = html.Div(children=hexagram_lines + hexagram_details, className='container hexagram-details')
         else:
             hexagram_output = html.Div("Error fetching hexagram details", className='alert alert-danger')
 
