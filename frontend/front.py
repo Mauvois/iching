@@ -1,9 +1,14 @@
+import os
+
 # Import necessary libraries
 import dash
 from dash import html, dcc, Input, Output, State, callback_context
 import requests
 import time
 import re
+
+# Backend API URL (Update this URL after deploying the backend)
+BACKEND_API_URL = "https://backend-5ols2im5la-ew.a.run.app"
 
 # Initialize the Dash app with a theme and custom font
 app = dash.Dash(__name__, external_stylesheets=[
@@ -53,7 +58,6 @@ app.layout = html.Div([
 
     html.Div([
         html.Div([
-            # html.H3("Step 1: Initialize Toss", className="mt-5 text-primary"),
             dcc.Input(id='question-input', type='text', placeholder='Enter your question:', className='form-control my-3'),
             html.Button('Initialize Toss', id='init-toss-btn', n_clicks=0, className='btn btn-success my-3'),
             html.Div(id='random-state-output', className='alert alert-info')
@@ -77,7 +81,7 @@ app.layout = html.Div([
 ])
 
 # Define the base URL of your API
-BASE_URL = "http://localhost:8000"
+BASE_URL = BACKEND_API_URL
 
 # Define global variables
 start_time = None
@@ -233,4 +237,5 @@ def update_display(clear_clicks, timer_output, random_state_text):
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    port = int(os.environ.get('PORT', 8050))
+    app.run_server(debug=True, host='0.0.0.0', port=port)

@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 import duckdb
@@ -7,12 +8,26 @@ from random import Random
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins, adjust as necessary for security
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+async def read_root():
+    return {"message": "Hello, World!"}
+
+@app.get("/favicon.ico")
+async def favicon():
+    return {"message": "This is the favicon endpoint"}
+
+
 # Construct the relative path to the database
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATABASE_PATH = os.path.join(BASE_DIR, 'data', 'iching.db')
-
-# Debugging: Print the database path to verify it's correct
-print(f"Database Path: {DATABASE_PATH}")
 
 class Question(BaseModel):
     text: str
