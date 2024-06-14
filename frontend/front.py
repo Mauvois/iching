@@ -26,6 +26,22 @@ app.index_string = '''
         <style>
             body {
                 font-family: 'Lato', sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background-image: url('/assets/steve-johnson-YS0YJLU_h2k-unsplash.jpg');
+                background-size: cover;
+                background-position: center;
+            }
+            .container {
+                background-color: rgba(255, 255, 255, 0.0); /* Change to transparent */
+                padding: 20px;
+                border-radius: 8px;
+                max-width: 600px;
+                text-align: center;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             }
             .hexagram-line {
                 height: 10px;
@@ -35,20 +51,23 @@ app.index_string = '''
                 background-color: black;
             }
             .hexagram-line.broken {
-                background: linear-gradient(to right, black 40%, white 40%, white 60%, black 60%);
+                background: linear-gradient(to right, black 40%, transparent 40%, transparent 60%, black 60%); /* Adjust for transparency */
+            }
+            .alert-info, .alert-warning, .alert-danger {
+                background-color: rgba(255, 255, 255, 0.0); /* Make alert backgrounds transparent */
+                border: none; /* Remove borders for alerts */
             }
         </style>
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-primary">
-            <a class="navbar-brand text-white" href="#">I Ching</a>
-        </nav>
-        {%app_entry%}
-        <footer class="text-center mt-4">
-            {%config%}
-            {%scripts%}
-            {%renderer%}
-        </footer>
+        <div class="container">
+            {%app_entry%}
+            <footer class="text-center mt-4">
+                {%config%}
+                {%scripts%}
+                {%renderer%}
+            </footer>
+        </div>
     </body>
 </html>
 '''
@@ -268,9 +287,9 @@ def update_display(clear_clicks, timer_output, random_state_text):
                          children=f"Upper Trigram: {hexagram[2]}"),
                 html.Div(className='hexagram-detail',
                          children=f"Lower Trigram: {hexagram[3]}"),
-                html.Div(className='hexagram-section bg-light',
+                html.Div(className='hexagram-section',
                          children=f"Judgment: {hexagram[4]}"),
-                *[html.Div(className='hexagram-section bg-light', children=f"{detail}") for detail in hexagram[5:]]
+                *[html.Div(className='hexagram-section', children=f"{detail}") for detail in hexagram[5:]]
             ]
             hexagram_output = html.Div(
                 children=hexagram_lines + hexagram_details, className='container hexagram-details')
