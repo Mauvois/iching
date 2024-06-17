@@ -40,10 +40,11 @@ app.index_string = '''
                 background-color: rgba(255, 255, 255, 0);
                 padding: 20px;
                 border-radius: 8px;
-                max-width: 600px;
+                max-width: 800px; /* Increased max-width */
                 text-align: center;
                 box-shadow: 0 0px 8px rgba(0, 0, 0, 0);
                 color: white; /* Turn container text white */
+                width: 100%;
             }
             .hexagram-line {
                 height: 10px;
@@ -104,12 +105,17 @@ app.index_string = '''
             }
             .hexagram-title {
                 color: white; /* Turn hexagram title text white */
+                text-align: left; /* Align title text to the left */
             }
             .hexagram-detail {
                 color: white; /* Turn hexagram detail text white */
+                text-align: left; /* Align detail text to the left */
+                width: 100%; /* Ensure details use full width */
             }
             .hexagram-section {
                 color: white; /* Turn hexagram section text white */
+                text-align: left; /* Align section text to the left */
+                width: 100%; /* Ensure sections use full width */
             }
         </style>
     </head>
@@ -124,6 +130,7 @@ app.index_string = '''
         </div>
     </body>
 </html>
+
 '''
 
 app.layout = html.Div([
@@ -155,9 +162,7 @@ app.layout = html.Div([
             html.Button('Stop Timer 3', id='stop-timer3-btn',
                         n_clicks=0, className='btn btn-danger')
         ], className='my-3'),
-        html.Div(id='line-output', className='alert alert-info'),
-        html.Button('Clear', id='clear-btn', n_clicks=0,
-                    className='btn btn-primary my-3')
+        html.Div(id='line-output', className='alert alert-info')
     ], className="container", style={'display': 'none'}),
 
     # Part 3: Display Hexagram and Interpretation (Initially Hidden)
@@ -309,16 +314,8 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks):
                             hexagram_lines = [render_hexagram_line(
                                 line) for line in lines[::-1]]
                             hexagram_details = [
-                                html.Div(
-                                    className='hexagram-title text-danger', children=hexagram[1]),
-                                html.Div(className='hexagram-detail',
-                                         children=f"Hexagram Number: {hexagram[0]}"),
-                                html.Div(className='hexagram-detail',
-                                         children=f"Name: {hexagram[1]}"),
-                                html.Div(className='hexagram-detail',
-                                         children=f"Upper Trigram: {hexagram[2]}"),
-                                html.Div(className='hexagram-detail',
-                                         children=f"Lower Trigram: {hexagram[3]}"),
+                                html.Div(className='hexagram-title text-danger',
+                                         children=f"Hexagram Number: {hexagram[0]} — {hexagram[1]} "),
                                 html.Div(className='hexagram-section',
                                          children=f"Judgment: {hexagram[4]}"),
                                 *[html.Div(className='hexagram-section', children=f"{detail}") for detail in hexagram[5:]]
@@ -337,19 +334,12 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks):
 
 
 @app.callback(
-    [Output('line-output', 'children'),
-     Output('hexagram-output', 'children')],
-    [Input('clear-btn', 'n_clicks'),
-     Input('timer-output', 'children')]
+    Output('line-output', 'children'),
+    Output('hexagram-output', 'children'),
+    Input('timer-output', 'children')
 )
-def update_display(clear_clicks, timer_output):
+def update_display(timer_output):
     global lines
-    ctx = callback_context
-
-    if ctx.triggered and ctx.triggered[0]['prop_id'].split('.')[0] == 'clear-btn':
-        lines = []
-        return "State cleared, ready for new session.", ""
-
     line_recap = ""
     hexagram_output = ""
     hexagram_lines = []
@@ -364,16 +354,10 @@ def update_display(clear_clicks, timer_output):
         hexagram = get_hexagram()
         if (hexagram):
             hexagram_details = [
-                html.Div(className='hexagram-title text-danger',
-                         children=hexagram[1]),
                 html.Div(className='hexagram-detail',
                          children=f"Hexagram Number: {hexagram[0]}"),
                 html.Div(className='hexagram-detail',
                          children=f"Name: {hexagram[1]}"),
-                html.Div(className='hexagram-detail',
-                         children=f"Upper Trigram: {hexagram[2]}"),
-                html.Div(className='hexagram-detail',
-                         children=f"Lower Trigram: {hexagram[3]}"),
                 html.Div(className='hexagram-section',
                          children=f"Judgment: {hexagram[4]}"),
                 *[html.Div(className='hexagram-section', children=f"{detail}") for detail in hexagram[5:]]
