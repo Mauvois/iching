@@ -31,17 +31,17 @@ app.index_string = '''
                 align-items: center;
                 height: 100vh;
                 margin: 0;
-                background-image: url('/assets/steve-johnson-YS0YJLU_h2k-unsplash.jpg');
+                background-image: url('/assets/felipe-santana--e_njRV9hRE-unsplash.jpg');
                 background-size: cover;
                 background-position: center;
             }
             .container {
-                background-color: rgba(255, 255, 255, 0.0); /* Change to transparent */
+                background-color: rgba(255, 255, 255, 0); /* Change to transparent */
                 padding: 20px;
                 border-radius: 8px;
                 max-width: 600px;
                 text-align: center;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 0px 8px rgba(0, 0, 0, 0);
             }
             .hexagram-line {
                 height: 10px;
@@ -54,7 +54,7 @@ app.index_string = '''
                 background: linear-gradient(to right, black 40%, transparent 40%, transparent 60%, black 60%); /* Adjust for transparency */
             }
             .alert-info, .alert-warning, .alert-danger {
-                background-color: rgba(255, 255, 255, 0.0); /* Make alert backgrounds transparent */
+                background-color: rgba(255, 255, 255, 0); /* Make alert backgrounds transparent */
                 border: none; /* Remove borders for alerts */
             }
         </style>
