@@ -47,14 +47,18 @@ app.index_string = '''
                 width: 100%;
             }
             .hexagram-line {
-                height: 10px;
-                margin: 5px 0;
+                height: 8px;
+                margin: 10px 0;
             }
             .hexagram-line.solid {
-                background-color: black;
+                background-color: white;
+                margin-left: 30%; /* Reduce the left margin */
+                margin-right: 30%; /* Reduce the right margin */
             }
             .hexagram-line.broken {
-                background: linear-gradient(to right, black 40%, transparent 40%, transparent 60%, black 60%);
+                background: linear-gradient(to right, white 40%, transparent 40%, transparent 60%, white 60%);
+                margin-left: 30%; /* Reduce the left margin */
+                margin-right: 30%; /* Reduce the right margin */
             }
             .alert-info, .alert-warning, .alert-danger {
                 background-color: rgba(255, 255, 255, 0);
@@ -105,7 +109,8 @@ app.index_string = '''
             }
             .hexagram-title {
                 color: white; /* Turn hexagram title text white */
-                text-align: left; /* Align title text to the left */
+                text-align: center;
+                font-size: 2em;
             }
             .hexagram-detail {
                 color: white; /* Turn hexagram detail text white */
@@ -117,7 +122,19 @@ app.index_string = '''
                 text-align: left; /* Align section text to the left */
                 width: 100%; /* Ensure sections use full width */
             }
+            .line-recap {
+                position: absolute;
+                left: 10px;
+                top: 20%;
+                color: white;
+                text-align: left;
+                max-width: 200px;
+            }
+            .line-type {
+                margin-top: 20px;
+            }
         </style>
+
     </head>
     <body>
         <div class="container">
@@ -130,7 +147,6 @@ app.index_string = '''
         </div>
     </body>
 </html>
-
 '''
 
 app.layout = html.Div([
@@ -150,7 +166,8 @@ app.layout = html.Div([
     html.Div(id='part-2', children=[
         # Updated className
         html.Div(id='question-display', className='question-display my-3'),
-        html.H3("Generate 6 Lines", className="mt-5 text-primary"),
+        html.H3("Generate 6 Lines", id='generate-6-lines-title',
+                className="mt-5 text-primary"),
         html.Button('Start Timer', id='start-timer-btn',
                     n_clicks=0, className='btn btn-success my-3'),
         html.Div(id='timer-output', className='alert alert-info'),
@@ -162,7 +179,9 @@ app.layout = html.Div([
             html.Button('Stop Timer 3', id='stop-timer3-btn',
                         n_clicks=0, className='btn btn-danger')
         ], className='my-3'),
-        html.Div(id='line-output', className='alert alert-info')
+        html.Div(id='line-output', className='alert alert-info line-recap'),
+        # Added line type output
+        html.Div(id='line-type-output', className='line-type')
     ], className="container", style={'display': 'none'}),
 
     # Part 3: Display Hexagram and Interpretation (Initially Hidden)
@@ -234,7 +253,7 @@ def get_hexagram():
 
 
 def render_hexagram_line(line_value):
-    if line_value % 2 == 0:  # Yin line (broken)
+    if (line_value % 2) == 0:  # Yin line (broken)
         return html.Div(className='hexagram-line broken')
     else:  # Yang line (solid)
         return html.Div(className='hexagram-line solid')
@@ -314,10 +333,12 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks):
                             hexagram_lines = [render_hexagram_line(
                                 line) for line in lines[::-1]]
                             hexagram_details = [
-                                html.Div(className='hexagram-title text-danger',
-                                         children=f"Hexagram Number: {hexagram[0]} — {hexagram[1]} "),
+                                html.Br(),
+                                html.Div(className='hexagram-title',
+                                         children=f"Hexagramme {hexagram[0]} — {hexagram[1]} "),
+                                html.Br(),
                                 html.Div(className='hexagram-section',
-                                         children=f"Judgment: {hexagram[4]}"),
+                                         children=f"{hexagram[4]}"),
                                 *[html.Div(className='hexagram-section', children=f"{detail}") for detail in hexagram[5:]]
                             ]
                             hexagram_output = html.Div(
@@ -336,6 +357,14 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks):
 @app.callback(
     Output('line-output', 'children'),
     Output('hexagram-output', 'children'),
+    Output('start-timer-btn', 'style'),  # Added output for hiding the buttons
+    Output('stop-timer1-btn', 'style'),  # Added output for hiding the buttons
+    Output('stop-timer2-btn', 'style'),  # Added output for hiding the buttons
+    Output('stop-timer3-btn', 'style'),  # Added output for hiding the buttons
+    # Added output for hiding the title
+    Output('generate-6-lines-title', 'style'),
+    # Added output for hiding the line type
+    Output('line-type-output', 'style'),
     Input('timer-output', 'children')
 )
 def update_display(timer_output):
@@ -343,6 +372,7 @@ def update_display(timer_output):
     line_recap = ""
     hexagram_output = ""
     hexagram_lines = []
+    line_type_output = timer_output  # Add this to display line type
 
     if len(lines) > 0:
         hexagram_lines = [render_hexagram_line(line) for line in lines[::-1]]
@@ -352,7 +382,7 @@ def update_display(timer_output):
     hexagram_details = []
     if len(lines) == 6:
         hexagram = get_hexagram()
-        if (hexagram):
+        if hexagram:
             hexagram_details = [
                 html.Div(className='hexagram-detail',
                          children=f"Hexagram Number: {hexagram[0]}"),
@@ -368,7 +398,16 @@ def update_display(timer_output):
             hexagram_output = html.Div(
                 "Error fetching hexagram details", className='alert alert-danger')
 
-    return line_recap, hexagram_output
+        # Hide the buttons, title, and line type when 6 lines are drawn
+        button_style = {'display': 'none'}
+        title_style = {'display': 'none'}
+        line_type_style = {'display': 'none'}
+    else:
+        button_style = {'display': 'inline-block'}
+        title_style = {'display': 'block'}
+        line_type_style = {'display': 'block'}
+
+    return line_recap, hexagram_output, button_style, button_style, button_style, button_style, title_style, line_type_style
 
 
 @app.callback(
