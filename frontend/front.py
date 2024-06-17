@@ -34,14 +34,16 @@ app.index_string = '''
                 background-image: url('/assets/felipe-santana--e_njRV9hRE-unsplash.jpg');
                 background-size: cover;
                 background-position: center;
+                color: white; /* Turn body text white */
             }
             .container {
-                background-color: rgba(255, 255, 255, 0); /* Change to transparent */
+                background-color: rgba(255, 255, 255, 0);
                 padding: 20px;
                 border-radius: 8px;
                 max-width: 600px;
                 text-align: center;
                 box-shadow: 0 0px 8px rgba(0, 0, 0, 0);
+                color: white; /* Turn container text white */
             }
             .hexagram-line {
                 height: 10px;
@@ -51,11 +53,63 @@ app.index_string = '''
                 background-color: black;
             }
             .hexagram-line.broken {
-                background: linear-gradient(to right, black 40%, transparent 40%, transparent 60%, black 60%); /* Adjust for transparency */
+                background: linear-gradient(to right, black 40%, transparent 40%, transparent 60%, black 60%);
             }
             .alert-info, .alert-warning, .alert-danger {
-                background-color: rgba(255, 255, 255, 0); /* Make alert backgrounds transparent */
-                border: none; /* Remove borders for alerts */
+                background-color: rgba(255, 255, 255, 0);
+                border: none;
+                color: white; /* Turn alert text white */
+            }
+            .text-primary {
+                color: white !important; /* Change primary text to white */
+            }
+            .text-center {
+                text-align: center !important;
+                color: white; /* Turn text center text white */
+            }
+            .btn {
+                margin: 5px;
+            }
+            .btn-transparent {
+                background-color: transparent;
+                border: none;
+                color: white; /* Change button text to white */
+            }
+            .question-label {
+                color: white;
+                font-size: 1.5em;
+                margin-bottom: 10px;
+            }
+            .form-control::placeholder {
+                color: white;
+                opacity: 1;
+            }
+            .form-control {
+                background-color: rgba(255, 255, 255, 0);
+                color: white;
+                border: 1px solid white;
+                transition: border-color 0.3s;
+            }
+            .form-control:focus {
+                background-color: rgba(255, 255, 255, 0);
+                color: white;
+                border: 2px solid white;
+                outline: none;
+            }
+            .question-display {
+                color: white;
+                font-size: 2em;
+                margin-top: 20px;
+                text-align: center;
+            }
+            .hexagram-title {
+                color: white; /* Turn hexagram title text white */
+            }
+            .hexagram-detail {
+                color: white; /* Turn hexagram detail text white */
+            }
+            .hexagram-section {
+                color: white; /* Turn hexagram section text white */
             }
         </style>
     </head>
@@ -74,43 +128,51 @@ app.index_string = '''
 
 app.layout = html.Div([
 
-    html.Div([
-        html.Div([
-            dcc.Input(id='question-input', type='text',
-                      placeholder='Enter your question:', className='form-control my-3'),
-            html.Button('Initialize Toss', id='init-toss-btn',
-                        n_clicks=0, className='btn btn-success my-3'),
-            html.Div(id='random-state-output', className='alert alert-info')
-        ], className="container mb-4"),
-
-        html.Div([
-            html.H3("Generate 6 Lines", className="mt-5 text-primary"),
-            html.Button('Start Timer', id='start-timer-btn',
-                        n_clicks=0, className='btn btn-success my-3'),
-            html.Div(id='timer-output', className='alert alert-info'),
-            html.Div([
-                html.Button('Stop Timer 1', id='stop-timer1-btn',
-                            n_clicks=0, className='btn btn-danger mr-2'),
-                html.Button('Stop Timer 2', id='stop-timer2-btn',
-                            n_clicks=0, className='btn btn-danger mr-2'),
-                html.Button('Stop Timer 3', id='stop-timer3-btn',
-                            n_clicks=0, className='btn btn-danger')
-            ], className='my-3'),
-            html.Div(id='line-output', className='alert alert-info'),
-            html.Button('Clear', id='clear-btn', n_clicks=0,
-                        className='btn btn-primary my-3')
-        ], className="container mb-4")
+    # Part 1: Ask Question
+    html.Div(id='part-1', children=[
+        html.Div('Quelle est votre question pour l\'Oracle?',
+                 className='question-label'),
+        dcc.Input(id='question-input', type='text', debounce=True,
+                  placeholder='', className='form-control my-3'),
+        html.Button('', id='submit-question-btn',
+                    n_clicks=0, className='btn btn-transparent my-3')  #
     ], className="container"),
 
-    html.Div(id='hexagram-output', className="container my-5"),
 
-    html.Div([
+    # Part 2: Initialize Toss and Generate Lines (Initially Hidden)
+    html.Div(id='part-2', children=[
+        # Updated className
+        html.Div(id='question-display', className='question-display my-3'),
+        html.H3("Generate 6 Lines", className="mt-5 text-primary"),
+        html.Button('Start Timer', id='start-timer-btn',
+                    n_clicks=0, className='btn btn-success my-3'),
+        html.Div(id='timer-output', className='alert alert-info'),
+        html.Div([
+            html.Button('Stop Timer 1', id='stop-timer1-btn',
+                        n_clicks=0, className='btn btn-danger mr-2'),
+            html.Button('Stop Timer 2', id='stop-timer2-btn',
+                        n_clicks=0, className='btn btn-danger mr-2'),
+            html.Button('Stop Timer 3', id='stop-timer3-btn',
+                        n_clicks=0, className='btn btn-danger')
+        ], className='my-3'),
+        html.Div(id='line-output', className='alert alert-info'),
+        html.Button('Clear', id='clear-btn', n_clicks=0,
+                    className='btn btn-primary my-3')
+    ], className="container", style={'display': 'none'}),
+
+    # Part 3: Display Hexagram and Interpretation (Initially Hidden)
+    html.Div(id='part-3', children=[
+        # Added for part 3
+        html.Div(id='question-display-3', className='question-display my-3'),
+        html.Div(id='hexagram-output', className="container my-5"),
         html.H3("Interpretation", className="mt-5 text-primary"),
         html.Button('Get Interpretation', id='get-interpretation-btn',
                     n_clicks=0, className='btn btn-info my-3'),
         html.Div(id='interpretation-output', className='alert alert-warning')
-    ], className="container mb-4")
+    ], className="container", style={'display': 'none'})
+
 ])
+
 
 # Define the base URL of your API
 BASE_URL = BACKEND_API_URL
@@ -187,22 +249,29 @@ def get_interpretation(question, iching_response):
 
 # Callbacks
 @app.callback(
-    Output('random-state-output', 'children'),
-    Input('init-toss-btn', 'n_clicks'),
+    Output('part-1', 'style'),
+    Output('part-2', 'style'),
+    Output('part-3', 'style'),  # Added to toggle part-3
+    Output('question-display', 'children'),
+    Output('question-display-3', 'children'),  # Added for part 3
+    Input('submit-question-btn', 'n_clicks'),
+    Input('question-input', 'n_submit'),  # Added n_submit input
     State('question-input', 'value')
 )
-def initialize_toss(n_clicks, question):
+def submit_question(n_clicks, n_submit, question):
     global random_state
-    if n_clicks > 0 and question:
+    n_clicks = n_clicks or 0
+    n_submit = n_submit or 0
+    if (n_clicks > 0 or n_submit > 0) and question:
         response = requests.post(
             f"{BASE_URL}/initialize-toss", json={"text": question})
         if response.status_code == 200:
             random_state = response.json().get("random_state")
             lines.clear()  # Reset lines
-            return f"Random State: {random_state}"
+            return {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, f"{question}", f"Question: {question}"
         else:
-            return f"Error: {response.json().get('detail')}"
-    return ""
+            return {'display': 'block'}, {'display': 'none'}, {'display': 'none'}, f"Error: {response.json().get('detail')}", ""
+    return {'display': 'block'}, {'display': 'none'}, {'display': 'none'}, "", ""
 
 
 @app.callback(
@@ -210,10 +279,9 @@ def initialize_toss(n_clicks, question):
     [Input('start-timer-btn', 'n_clicks'),
      Input('stop-timer1-btn', 'n_clicks'),
      Input('stop-timer2-btn', 'n_clicks'),
-     Input('stop-timer3-btn', 'n_clicks')],
-    State('random-state-output', 'children')
+     Input('stop-timer3-btn', 'n_clicks')]
 )
-def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks, random_state_text):
+def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks):
     global stop_times
     ctx = callback_context
 
@@ -234,28 +302,47 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks, random
                 elapsed_time = stop_timer(index)
                 if elapsed_time is not None:
                     if len(stop_times) == 3:
-                        random_state_value = int(
-                            random_state_text.split(":")[1].strip())
-                        result = process_line(random_state_value)
+                        result = process_line(random_state)
                         stop_times.clear()  # Clear stop_times after processing the line
-                        return result
-                    return f"Timer stopped {index + 1} times: {elapsed_time} ms"
+                        if len(lines) == 6:  # Check if 6 lines are drawn
+                            hexagram = get_hexagram()
+                            hexagram_lines = [render_hexagram_line(
+                                line) for line in lines[::-1]]
+                            hexagram_details = [
+                                html.Div(
+                                    className='hexagram-title text-danger', children=hexagram[1]),
+                                html.Div(className='hexagram-detail',
+                                         children=f"Hexagram Number: {hexagram[0]}"),
+                                html.Div(className='hexagram-detail',
+                                         children=f"Name: {hexagram[1]}"),
+                                html.Div(className='hexagram-detail',
+                                         children=f"Upper Trigram: {hexagram[2]}"),
+                                html.Div(className='hexagram-detail',
+                                         children=f"Lower Trigram: {hexagram[3]}"),
+                                html.Div(className='hexagram-section',
+                                         children=f"Judgment: {hexagram[4]}"),
+                                *[html.Div(className='hexagram-section', children=f"{detail}") for detail in hexagram[5:]]
+                            ]
+                            hexagram_output = html.Div(
+                                children=hexagram_lines + hexagram_details, className='container hexagram-details')
+                            return result, hexagram_output
+                        return result, ""
+                    return f"Timer stopped {index + 1} times: {elapsed_time} ms", ""
             else:
-                return "Error processing timer: Invalid button ID format"
+                return "Error processing timer: Invalid button ID format", ""
         except (IndexError, ValueError) as e:
-            return f"Error processing timer: {str(e)}"
+            return f"Error processing timer: {str(e)}", ""
 
-    return ""
+    return "", ""
 
 
 @app.callback(
     [Output('line-output', 'children'),
      Output('hexagram-output', 'children')],
     [Input('clear-btn', 'n_clicks'),
-     Input('timer-output', 'children')],
-    State('random-state-output', 'children')
+     Input('timer-output', 'children')]
 )
-def update_display(clear_clicks, timer_output, random_state_text):
+def update_display(clear_clicks, timer_output):
     global lines
     ctx = callback_context
 
@@ -275,7 +362,7 @@ def update_display(clear_clicks, timer_output, random_state_text):
     hexagram_details = []
     if len(lines) == 6:
         hexagram = get_hexagram()
-        if hexagram:
+        if (hexagram):
             hexagram_details = [
                 html.Div(className='hexagram-title text-danger',
                          children=hexagram[1]),
