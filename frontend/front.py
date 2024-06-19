@@ -191,7 +191,10 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks):
                             html.Br(),
                             html.Div(className='hexagram-section',
                                      children=f"{hexagram[4]}"),
-                            *[html.Div(className='hexagram-section', children=f"{detail}") for detail in hexagram[5:]]
+                            *[html.Div(className='hexagram-section',
+                                       children=f"{detail}") for detail in hexagram[5:]],
+                            html.Button('Get Interpretation', id='get-interpretation-btn',
+                                        n_clicks=0, className='btn btn-info my-3')  # Add button here
                         ]
                         hexagram_output = html.Div(
                             children=hexagram_lines + hexagram_details, className='container hexagram-details')
@@ -213,6 +216,7 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks):
     Output('stop-timer3-btn', 'style'),
     Output('generate-6-lines-title', 'style'),
     Output('line-type-output', 'style'),
+    Output('get-interpretation-btn', 'style'),  # Add button style output
     Input('timer-output', 'children')
 )
 def update_display(timer_output):
@@ -221,6 +225,9 @@ def update_display(timer_output):
     hexagram_output = ""
     hexagram_lines = []
     line_type_output = timer_output
+    button_style = HIDDEN  # Initialize the button style to hidden
+    # Initialize the interpretation button style to hidden
+    interpretation_button_style = HIDDEN
 
     if len(lines) > 0:
         hexagram_lines = [render_hexagram_line(line) for line in lines[::-1]]
@@ -237,15 +244,18 @@ def update_display(timer_output):
                          children=f"Name: {hexagram[1]}"),
                 html.Div(className='hexagram-section',
                          children=f"Judgment: {hexagram[4]}"),
-                *[html.Div(className='hexagram-section', children=f"{detail}") for detail in hexagram[5:]]
+                *[html.Div(className='hexagram-section',
+                           children=f"{detail}") for detail in hexagram[5:]],
             ]
             hexagram_output = html.Div(
                 children=hexagram_lines + hexagram_details, className='container hexagram-details')
+            # Show interpretation button when hexagram details are displayed
+            interpretation_button_style = VISIBLE
         else:
             hexagram_output = html.Div(
                 "Error fetching hexagram details", className='alert alert-danger')
 
-        button_style = HIDDEN
+        button_style = HIDDEN  # Hide timer buttons when hexagram is complete
         title_style = HIDDEN
         line_type_style = HIDDEN
     else:
@@ -253,7 +263,7 @@ def update_display(timer_output):
         title_style = VISIBLE
         line_type_style = VISIBLE
 
-    return line_recap, hexagram_output, button_style, button_style, button_style, button_style, title_style, line_type_style
+    return line_recap, hexagram_output, button_style, button_style, button_style, button_style, title_style, line_type_style, interpretation_button_style  # Update return statement
 
 
 @app.callback(
