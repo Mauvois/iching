@@ -1,9 +1,0 @@
-frontend/
-├── __init__.py
-├── assets/
-│   └── felipe-santana--e_njRV9hRE-unsplash.jpg
-├── callbacks.py
-├── front.py
-├── config.py
-├── layout.py
-└── utils.py
