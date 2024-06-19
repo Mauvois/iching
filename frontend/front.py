@@ -56,7 +56,8 @@ app.layout = html.Div([
         html.H3("Interpretation", className="mt-5 text-primary"),
         html.Button('Get Interpretation', id='get-interpretation-btn',
                     n_clicks=0, className='btn btn-info my-3'),
-        html.Div(id='interpretation-output', className='alert alert-warning')
+        html.Div(id='interpretation-output',
+                 className='alert alert-warning', children='holi')
     ], className="container", style=HIDDEN)
 ])
 
@@ -194,7 +195,10 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks):
                             *[html.Div(className='hexagram-section',
                                        children=f"{detail}") for detail in hexagram[5:]],
                             html.Button('Get Interpretation', id='get-interpretation-btn',
-                                        n_clicks=0, className='btn btn-info my-3')  # Add button here
+                                        n_clicks=0, className='btn btn-info my-3'),
+                            # Add 'holi' here
+                            html.Div(id='interpretation-output',
+                                     className='alert alert-warning', children='holi')
                         ]
                         hexagram_output = html.Div(
                             children=hexagram_lines + hexagram_details, className='container hexagram-details')
@@ -216,7 +220,7 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks):
     Output('stop-timer3-btn', 'style'),
     Output('generate-6-lines-title', 'style'),
     Output('line-type-output', 'style'),
-    Output('get-interpretation-btn', 'style'),  # Add button style output
+    Output('get-interpretation-btn', 'style'),
     Input('timer-output', 'children')
 )
 def update_display(timer_output):
@@ -298,7 +302,7 @@ def provide_interpretation(n_clicks, question, hexagram_output):
         interpretation = get_interpretation(question, iching_response)
         return interpretation
 
-    return ""
+    return "holi"
 
 
 # Run the app
