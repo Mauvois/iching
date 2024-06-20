@@ -1,7 +1,6 @@
 # styles.py
 
 external_stylesheets = [
-    'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css',
     'https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap'
 ]
 
@@ -24,16 +23,16 @@ index_string = '''
                 background-image: url('/assets/felipe-santana--e_njRV9hRE-unsplash.jpg');
                 background-size: cover;
                 background-position: center;
-                color: white; /* Turn body text white */
+                color: white;
             }
             .container {
                 background-color: rgba(255, 255, 255, 0);
                 padding: 20px;
                 border-radius: 8px;
-                max-width: 800px; /* Increased max-width */
+                max-width: 800px;
                 text-align: center;
                 box-shadow: 0 0px 8px rgba(0, 0, 0, 0);
-                color: white; /* Turn container text white */
+                color: white;
                 width: 100%;
             }
             .hexagram-line {
@@ -42,33 +41,67 @@ index_string = '''
             }
             .hexagram-line.solid {
                 background-color: white;
-                margin-left: 30%; /* Reduce the left margin */
-                margin-right: 30%; /* Reduce the right margin */
+                margin-left: 30%;
+                margin-right: 30%;
             }
             .hexagram-line.broken {
                 background: linear-gradient(to right, white 40%, transparent 40%, transparent 60%, white 60%);
-                margin-left: 30%; /* Reduce the left margin */
-                margin-right: 30%; /* Reduce the right margin */
+                margin-left: 30%;
+                margin-right: 30%;
             }
             .alert-info, .alert-warning, .alert-danger {
                 background-color: rgba(255, 255, 255, 0);
                 border: none;
-                color: white; /* Turn alert text white */
+                color: white;
             }
             .text-primary {
-                color: white !important; /* Change primary text to white */
+                color: white !important;
             }
             .text-center {
                 text-align: center !important;
-                color: white; /* Turn text center text white */
+                color: white;
             }
             .btn {
                 margin: 5px;
+                padding: 10px 20px;
+                font-size: 1.2em;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: background-color 0.3s, transform 0.3s;
+            }
+            .btn:hover {
+                transform: scale(1.05);
+            }
+            .btn-start {
+                background-color: #99C24D; /* MIT Celadon */
+                border: 2px solid #99C24D;
+                padding: 10px;
+                margin: 50px;
+                color: black;
+            }
+            .btn-start:hover {
+                background-color: #7BA035;
+            }
+            .btn-interpret {
+                background-color: #99C24D; /* MIT Celadon */
+                border: 2px solid #99C24D;
+                color: white;
+            }
+            .btn-interpret:hover {
+                background-color: #7BA035;
+            }
+            .btn-stop {
+                background-color: #E2725B; /* Terracotta Ocre */
+                border: 2px solid #E2725B;
+                color: white;
+            }
+            .btn-stop:hover {
+                background-color: #B55A46;
             }
             .btn-transparent {
                 background-color: transparent;
                 border: none;
-                color: white; /* Change button text to white */
+                color: white;
             }
             .question-label {
                 color: white;
@@ -98,19 +131,19 @@ index_string = '''
                 text-align: center;
             }
             .hexagram-title {
-                color: white; /* Turn hexagram title text white */
+                color: white;
                 text-align: center;
                 font-size: 2em;
             }
             .hexagram-detail {
-                color: white; /* Turn hexagram detail text white */
-                text-align: left; /* Align detail text to the left */
-                width: 100%; /* Ensure details use full width */
+                color: white;
+                text-align: left;
+                width: 100%;
             }
             .hexagram-section {
-                color: white; /* Turn hexagram section text white */
-                text-align: left; /* Align section text to the left */
-                width: 100%; /* Ensure sections use full width */
+                color: white;
+                text-align: left;
+                width: 100%;
             }
             .line-recap {
                 position: absolute;
@@ -123,7 +156,19 @@ index_string = '''
             .line-type {
                 margin-top: 20px;
             }
+            .button-group {
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+            }
+            .part-1, .part-2, .part-3 {
+                display: none;
+            }
+            .visible {
+                display: block;
+            }
         </style>
+
     </head>
     <body>
         <div class="container">

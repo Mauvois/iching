@@ -16,49 +16,44 @@ INTERPRETATION_API_URL = os.environ.get(
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.index_string = index_string
 
-# Commonly used styles
-HIDDEN = {'display': 'none'}
-VISIBLE = {'display': 'block'}
-BUTTON_STYLE = {'display': 'inline-block'}
-
 app.layout = html.Div([
-    html.Div(id='part-1', children=[
+    html.Div(id='part-1', className="part-1 visible", children=[
         html.Div('Quelle est votre question pour l\'Oracle?',
                  className='question-label'),
         dcc.Input(id='question-input', type='text', debounce=True,
-                  placeholder='', className='form-control my-3', value=''),
+                  placeholder='', className='form-control'),
         html.Button('', id='submit-question-btn', n_clicks=0,
-                    className='btn btn-transparent my-3')
-    ], className="container"),
+                    className='btn btn-transparent')
+    ]),
 
-    html.Div(id='part-2', children=[
-        html.Div(id='question-display', className='question-display my-3'),
+    html.Div(id='part-2', className="part-2", children=[
+        html.Div(id='question-display', className='question-display'),
         html.H3("Lancez les 3 pièces 6 fois", id='generate-6-lines-title',
-                className="mt-5 text-primary"),
+                className="text-primary"),
         html.Button('Alea Jacta Est', id='start-timer-btn',
-                    n_clicks=0, className='btn btn-success my-3'),
+                    n_clicks=0, className='btn btn-start'),
         html.Div(id='timer-output', className='alert alert-info'),
         html.Div([
             html.Button('Pièce n°1', id='stop-timer1-btn',
-                        n_clicks=0, className='btn btn-danger mr-2'),
+                        n_clicks=0, className='btn btn-stop'),
             html.Button('Pièce n°2', id='stop-timer2-btn',
-                        n_clicks=0, className='btn btn-danger mr-2'),
+                        n_clicks=0, className='btn btn-stop'),
             html.Button('Pièce n°3', id='stop-timer3-btn',
-                        n_clicks=0, className='btn btn-danger')
-        ], className='my-3'),
+                        n_clicks=0, className='btn btn-stop'),
+        ], className='button-group'),
         html.Div(id='line-output', className='alert alert-info line-recap'),
         html.Div(id='line-type-output', className='line-type')
-    ], className="container", style=HIDDEN),
+    ]),
 
-    html.Div(id='part-3', children=[
-        html.Div(id='question-display-3', className='question-display my-3'),
+    html.Div(id='part-3', className="part-3", children=[
+        html.Div(id='question-display-3', className='question-display'),
         html.Div(id='hexagram-output', className="container my-5"),
-        html.H3("Interpretation", className="mt-5 text-primary"),
+        html.H3("Interpretation", className="text-primary"),
         html.Button('Get Interpretation', id='get-interpretation-btn',
-                    n_clicks=0, className='btn btn-info my-3'),
+                    n_clicks=0, className='btn btn-interpret'),
         html.Div(id='interpretation-output',
                  className='alert alert-warning', children='holi')
-    ], className="container", style=HIDDEN)
+    ])
 ])
 
 # Define global variables
@@ -128,9 +123,9 @@ def get_interpretation(question, iching_response):
 
 
 @app.callback(
-    Output('part-1', 'style'),
-    Output('part-2', 'style'),
-    Output('part-3', 'style'),
+    Output('part-1', 'className'),
+    Output('part-2', 'className'),
+    Output('part-3', 'className'),
     Output('question-display', 'children'),
     Output('question-display-3', 'children'),
     Input('submit-question-btn', 'n_clicks'),
@@ -147,9 +142,9 @@ def submit_question(n_clicks, n_submit, question):
         if "error" not in result:
             random_state = result.get("random_state")
             lines.clear()
-            return HIDDEN, VISIBLE, HIDDEN, f"{question}", f"Question: {question}"
-        return VISIBLE, HIDDEN, HIDDEN, f"Error: {result['error']}", ""
-    return VISIBLE, HIDDEN, HIDDEN, "", ""
+            return 'part-1', 'part-2 visible', 'part-3', f"{question}", f"Question: {question}"
+        return 'part-1 visible', 'part-2', 'part-3', f"Error: {result['error']}", ""
+    return 'part-1 visible', 'part-2', 'part-3', "", ""
 
 
 @app.callback(
@@ -195,7 +190,7 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks):
                             *[html.Div(className='hexagram-section',
                                        children=f"{detail}") for detail in hexagram[5:]],
                             html.Button('Get Interpretation', id='get-interpretation-btn',
-                                        n_clicks=0, className='btn btn-info my-3'),
+                                        n_clicks=0, className='btn btn-info'),
                             # Add 'holi' here
                             html.Div(id='interpretation-output',
                                      className='alert alert-warning', children='holi')
@@ -228,10 +223,11 @@ def update_display(timer_output):
     line_recap = ""
     hexagram_output = ""
     hexagram_lines = []
-    line_type_output_style = HIDDEN  # Initialize the line type style to hidden
-    button_style = HIDDEN  # Initialize the button style to hidden
+    # Initialize the line type style to hidden
+    line_type_output_style = {'display': 'none'}
+    button_style = {'display': 'none'}  # Initialize the button style to hidden
     # Initialize the interpretation button style to hidden
-    interpretation_button_style = HIDDEN
+    interpretation_button_style = {'display': 'none'}
 
     if len(lines) > 0:
         hexagram_lines = [render_hexagram_line(line) for line in lines[::-1]]
@@ -254,21 +250,23 @@ def update_display(timer_output):
             hexagram_output = html.Div(
                 children=hexagram_lines + hexagram_details, className='container hexagram-details')
             # Show interpretation button when hexagram details are displayed
-            interpretation_button_style = VISIBLE
+            interpretation_button_style = {'display': 'block'}
         else:
             hexagram_output = html.Div(
                 "Error fetching hexagram details", className='alert alert-danger')
 
-        button_style = HIDDEN  # Hide timer buttons when hexagram is complete
-        title_style = HIDDEN
-        line_type_output_style = HIDDEN  # Ensure line type is hidden
+        # Hide timer buttons when hexagram is complete
+        button_style = {'display': 'none'}
+        title_style = {'display': 'none'}
+        # Ensure line type is hidden
+        line_type_output_style = {'display': 'none'}
     else:
-        button_style = BUTTON_STYLE
-        title_style = VISIBLE
-        line_type_output_style = VISIBLE  # Show line type when not complete
+        button_style = {'display': 'inline-block'}
+        title_style = {'display': 'block'}
+        # Show line type when not complete
+        line_type_output_style = {'display': 'block'}
 
     return line_recap, hexagram_output, button_style, button_style, button_style, button_style, title_style, line_type_output_style, interpretation_button_style  # Update return statement
-
 
 
 @app.callback(
