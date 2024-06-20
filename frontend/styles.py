@@ -49,10 +49,29 @@ index_string = '''
                 margin-left: 30%;
                 margin-right: 30%;
             }
-            .alert-info, .alert-warning, .alert-danger {
-                background-color: rgba(255, 255, 255, 0);
-                border: none;
+            .info-box {
+                padding: 15px;
+                border-radius: 5px;
+                margin-bottom: 20px;
                 color: white;
+                background-color: rgba(0, 123, 255, 0.1);
+                border: 1px solid #007bff;
+            }
+            .warning-box {
+                padding: 15px;
+                border-radius: 5px;
+                margin-bottom: 20px;
+                color: white;
+                background-color: rgba(255, 193, 7, 0.1);
+                border: 1px solid #ffc107;
+            }
+            .error-box {
+                padding: 15px;
+                border-radius: 5px;
+                margin-bottom: 20px;
+                color: white;
+                background-color: rgba(220, 53, 69, 0.1);
+                border: 1px solid #dc3545;
             }
             .text-primary {
                 color: white !important;

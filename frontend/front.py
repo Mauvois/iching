@@ -32,7 +32,7 @@ app.layout = html.Div([
                 className="text-primary"),
         html.Button('Alea Jacta Est', id='start-timer-btn',
                     n_clicks=0, className='btn btn-start'),
-        html.Div(id='timer-output', className='alert alert-info'),
+        html.Div(id='timer-output', className='info-box'),
         html.Div([
             html.Button('Pièce n°1', id='stop-timer1-btn',
                         n_clicks=0, className='btn btn-stop'),
@@ -41,7 +41,7 @@ app.layout = html.Div([
             html.Button('Pièce n°3', id='stop-timer3-btn',
                         n_clicks=0, className='btn btn-stop'),
         ], className='button-group'),
-        html.Div(id='line-output', className='alert alert-info line-recap'),
+        html.Div(id='line-output', className='info-box line-recap'),
         html.Div(id='line-type-output', className='line-type')
     ]),
 
@@ -54,7 +54,7 @@ app.layout = html.Div([
                         n_clicks=0, className='btn btn-interpret')
         ]),
         html.Div(id='interpretation-output',
-                 className='alert alert-warning', children='holi')
+                 className='info-box', children='holi')
     ])
 ])
 
@@ -196,7 +196,7 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks):
                                             n_clicks=0, className='btn btn-interpret')
                             ]),
                             html.Div(id='interpretation-output',
-                                     className='alert alert-warning', children='holi')
+                                     className='info-box', children='holi')
                         ]
                         hexagram_output = html.Div(
                             children=hexagram_lines + hexagram_details, className='container hexagram-details')
@@ -256,7 +256,7 @@ def update_display(timer_output):
             interpretation_button_style = {'display': 'block'}
         else:
             hexagram_output = html.Div(
-                "Error fetching hexagram details", className='alert alert-danger')
+                "Error fetching hexagram details", className='error-box')
 
         # Hide timer buttons when hexagram is complete
         button_style = {'display': 'none'}
