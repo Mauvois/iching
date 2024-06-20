@@ -33,17 +33,17 @@ app.layout = html.Div([
 
     html.Div(id='part-2', children=[
         html.Div(id='question-display', className='question-display my-3'),
-        html.H3("Generate 6 Lines", id='generate-6-lines-title',
+        html.H3("Lancez les 3 pièces 6 fois", id='generate-6-lines-title',
                 className="mt-5 text-primary"),
-        html.Button('Start Timer', id='start-timer-btn',
+        html.Button('Alea Jacta Est', id='start-timer-btn',
                     n_clicks=0, className='btn btn-success my-3'),
         html.Div(id='timer-output', className='alert alert-info'),
         html.Div([
-            html.Button('Stop Timer 1', id='stop-timer1-btn',
+            html.Button('Pièce n°1', id='stop-timer1-btn',
                         n_clicks=0, className='btn btn-danger mr-2'),
-            html.Button('Stop Timer 2', id='stop-timer2-btn',
+            html.Button('Pièce n°2', id='stop-timer2-btn',
                         n_clicks=0, className='btn btn-danger mr-2'),
-            html.Button('Stop Timer 3', id='stop-timer3-btn',
+            html.Button('Pièce n°3', id='stop-timer3-btn',
                         n_clicks=0, className='btn btn-danger')
         ], className='my-3'),
         html.Div(id='line-output', className='alert alert-info line-recap'),
@@ -101,7 +101,7 @@ def process_line():
                          {"times": stop_times, "random_state": random_state})
     if "error" not in result:
         lines.append(result['line_sum'])
-        return f"Line Type: {result['line_type']}, Line Sum: {result['line_sum']}"
+        return f"{result['line_type']}, {result['line_sum']}"
     return f"Error: {result['error']}"
 
 
@@ -204,7 +204,7 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks):
                             children=hexagram_lines + hexagram_details, className='container hexagram-details')
                         return result, hexagram_output
                     return result, ""
-                return f"Timer stopped {index + 1} times: {elapsed_time} ms", ""
+                return f" {index + 1}e fois", ""
         except (IndexError, ValueError) as e:
             return f"Error processing timer: {str(e)}", ""
 
@@ -228,7 +228,7 @@ def update_display(timer_output):
     line_recap = ""
     hexagram_output = ""
     hexagram_lines = []
-    line_type_output = timer_output
+    line_type_output_style = HIDDEN  # Initialize the line type style to hidden
     button_style = HIDDEN  # Initialize the button style to hidden
     # Initialize the interpretation button style to hidden
     interpretation_button_style = HIDDEN
@@ -261,13 +261,14 @@ def update_display(timer_output):
 
         button_style = HIDDEN  # Hide timer buttons when hexagram is complete
         title_style = HIDDEN
-        line_type_style = HIDDEN
+        line_type_output_style = HIDDEN  # Ensure line type is hidden
     else:
         button_style = BUTTON_STYLE
         title_style = VISIBLE
-        line_type_style = VISIBLE
+        line_type_output_style = VISIBLE  # Show line type when not complete
 
-    return line_recap, hexagram_output, button_style, button_style, button_style, button_style, title_style, line_type_style, interpretation_button_style  # Update return statement
+    return line_recap, hexagram_output, button_style, button_style, button_style, button_style, title_style, line_type_output_style, interpretation_button_style  # Update return statement
+
 
 
 @app.callback(
