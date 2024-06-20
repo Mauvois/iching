@@ -26,7 +26,7 @@ index_string = '''
                 color: white;
             }
             .container {
-                background-color: rgba(255, 255, 255, 0);
+                background-color: rgba(0, 0, 0, 0);
                 padding: 20px;
                 border-radius: 8px;
                 max-width: 800px;
@@ -49,29 +49,14 @@ index_string = '''
                 margin-left: 30%;
                 margin-right: 30%;
             }
-            .info-box {
+            .info-box, .warning-box, .error-box, #interpretation-output {
                 padding: 15px;
-                border-radius: 5px;
+                border-radius: 0px;
                 margin-bottom: 20px;
                 color: white;
-                background-color: rgba(0, 123, 255, 0.1);
-                border: 1px solid #007bff;
-            }
-            .warning-box {
-                padding: 15px;
-                border-radius: 5px;
-                margin-bottom: 20px;
-                color: white;
-                background-color: rgba(255, 193, 7, 0.1);
-                border: 1px solid #ffc107;
-            }
-            .error-box {
-                padding: 15px;
-                border-radius: 5px;
-                margin-bottom: 20px;
-                color: white;
-                background-color: rgba(220, 53, 69, 0.1);
-                border: 1px solid #dc3545;
+                background-color: rgba(0, 0, 0, 0); /* Set background to transparent */
+                border: 0px solid white;
+                text-align: justify; /* Use 'left' if you prefer left alignment */
             }
             .text-primary {
                 color: white !important;
@@ -139,20 +124,26 @@ index_string = '''
                 opacity: 1;
             }
             .form-control {
-                background-color: rgba(255, 255, 255, 0);
+                background-color: rgba(0, 0, 0, 0);
                 color: white;
                 border: 1px solid white;
-                transition: border-color 0.3s;
+                transition: border-color 0.3s, border-width 0.3s; /* Add border-width to the transition */
+                height: 30px; 
+                width: 90%;
+                border-radius: 8px;
             }
             .form-control:focus {
                 background-color: rgba(255, 255, 255, 0);
                 color: white;
-                border: 2px solid white;
+                border: 3px solid white; /* Ensure the border width is increased */
                 outline: none;
+                height: 30px; 
+                width: 90%;
+                border-radius: 8px;
             }
             .question-display {
                 color: white;
-                font-size: 2em;
+                font-size: 3em;
                 margin-top: 20px;
                 text-align: center;
             }
@@ -163,12 +154,12 @@ index_string = '''
             }
             .hexagram-detail {
                 color: white;
-                text-align: left;
+                text-align: justify; /* Use 'left' if you prefer left alignment */
                 width: 100%;
             }
             .hexagram-section {
                 color: white;
-                text-align: left;
+                text-align: justify; /* Use 'left' if you prefer left alignment */
                 width: 100%;
             }
             .line-recap {
@@ -207,7 +198,6 @@ index_string = '''
                 overflow: hidden;
             }
         </style>
-
     </head>
     <body>
         <div class="container">

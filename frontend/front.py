@@ -167,7 +167,7 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks):
 
     if button_id == 'start-timer-btn':
         start_timer()
-        return "Timer started"
+        return "Le sort est lancé"
 
     if 'stop-timer' in button_id:
         try:
@@ -304,7 +304,7 @@ def provide_interpretation(n_clicks, question, hexagram_output):
         interpretation = get_interpretation(question, iching_response)
         return interpretation
 
-    return "holi"
+    return ""
 
 
 # Run the app
