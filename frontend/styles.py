@@ -83,9 +83,15 @@ index_string = '''
                 background-color: #7BA035;
             }
             .btn-interpret {
-                background-color: #99C24D; /* MIT Celadon */
+                background-color: #99C24D; 
                 border: 2px solid #99C24D;
-                color: white;
+                margin: 30px;
+                color: black;
+                padding: 10px 20px; /* Add padding for better appearance */
+                font-size: 1.2em; /* Ensure consistent font size */
+                border-radius: 8px; /* Add border radius for consistent button style */
+                cursor: pointer;
+                transition: background-color 0.3s, transform 0.3s;
             }
             .btn-interpret:hover {
                 background-color: #7BA035;
@@ -93,6 +99,7 @@ index_string = '''
             .btn-stop {
                 background-color: #E2725B; /* Terracotta Ocre */
                 border: 2px solid #E2725B;
+                margin: 30px;
                 color: white;
             }
             .btn-stop:hover {
@@ -161,11 +168,24 @@ index_string = '''
                 justify-content: center;
                 gap: 10px;
             }
-            .part-1, .part-2, .part-3 {
-                display: none;
+            .center {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
             }
-            .visible {
-                display: block;
+            .part-1, .part-2, .part-3 {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+            }
+            .part-1.hidden, .part-2.hidden, .part-3.hidden {
+                opacity: 0;
+                visibility: hidden;
+                height: 0;
+                overflow: hidden;
             }
         </style>
 

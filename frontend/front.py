@@ -17,7 +17,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.index_string = index_string
 
 app.layout = html.Div([
-    html.Div(id='part-1', className="part-1 visible", children=[
+    html.Div(id='part-1', className="part-1", children=[
         html.Div('Quelle est votre question pour l\'Oracle?',
                  className='question-label'),
         dcc.Input(id='question-input', type='text', debounce=True,
@@ -26,7 +26,7 @@ app.layout = html.Div([
                     className='btn btn-transparent')
     ]),
 
-    html.Div(id='part-2', className="part-2", children=[
+    html.Div(id='part-2', className="part-2 hidden", children=[
         html.Div(id='question-display', className='question-display'),
         html.H3("Lancez les 3 pièces 6 fois", id='generate-6-lines-title',
                 className="text-primary"),
@@ -45,12 +45,14 @@ app.layout = html.Div([
         html.Div(id='line-type-output', className='line-type')
     ]),
 
-    html.Div(id='part-3', className="part-3", children=[
+    html.Div(id='part-3', className="part-3 hidden", children=[
         html.Div(id='question-display-3', className='question-display'),
         html.Div(id='hexagram-output', className="container my-5"),
         html.H3("Interpretation", className="text-primary"),
-        html.Button('Get Interpretation', id='get-interpretation-btn',
-                    n_clicks=0, className='btn btn-interpret'),
+        html.Div(className='center', children=[
+            html.Button('Get Interpretation', id='get-interpretation-btn',
+                        n_clicks=0, className='btn btn-interpret')
+        ]),
         html.Div(id='interpretation-output',
                  className='alert alert-warning', children='holi')
     ])
@@ -142,9 +144,9 @@ def submit_question(n_clicks, n_submit, question):
         if "error" not in result:
             random_state = result.get("random_state")
             lines.clear()
-            return 'part-1', 'part-2 visible', 'part-3', f"{question}", f"Question: {question}"
-        return 'part-1 visible', 'part-2', 'part-3', f"Error: {result['error']}", ""
-    return 'part-1 visible', 'part-2', 'part-3', "", ""
+            return 'part-1 hidden', 'part-2', 'part-3 hidden', f"{question}", f"Question: {question}"
+        return 'part-1', 'part-2 hidden', 'part-3 hidden', f"Error: {result['error']}", ""
+    return 'part-1', 'part-2 hidden', 'part-3 hidden', "", ""
 
 
 @app.callback(
@@ -189,9 +191,10 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks):
                                      children=f"{hexagram[4]}"),
                             *[html.Div(className='hexagram-section',
                                        children=f"{detail}") for detail in hexagram[5:]],
-                            html.Button('Get Interpretation', id='get-interpretation-btn',
-                                        n_clicks=0, className='btn btn-info'),
-                            # Add 'holi' here
+                            html.Div(className='center', children=[
+                                html.Button('Get Interpretation', id='get-interpretation-btn',
+                                            n_clicks=0, className='btn btn-interpret')
+                            ]),
                             html.Div(id='interpretation-output',
                                      className='alert alert-warning', children='holi')
                         ]
