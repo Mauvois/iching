@@ -1,5 +1,3 @@
-# styles.py
-
 external_stylesheets = [
     'https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap'
 ]
@@ -20,7 +18,7 @@ index_string = '''
                 align-items: center;
                 height: 100vh;
                 margin: 0;
-                background-image: url('/assets/felipe-santana--e_njRV9hRE-unsplash.jpg');
+                background-image: url('/assets/frantisek-g-XXuVXLy5gHU-unsplash.jpg');
                 background-size: cover;
                 background-position: center;
                 color: white;
@@ -56,8 +54,13 @@ index_string = '''
                 color: white;
                 background-color: rgba(0, 0, 0, 0); /* Set background to transparent */
                 border: 0px solid white;
-                text-align: justify; /* Use 'left' if you prefer left alignment */
+                text-align: center;
             }
+            .transparent {
+                opacity: 0.5; /* or any value between 0 and 1 for different levels of transparency */
+                transition: opacity 0.5s ease; /* Smooth transition effect */
+            }
+
             .text-primary {
                 color: white !important;
             }
@@ -71,24 +74,28 @@ index_string = '''
                 font-size: 1.2em;
                 border-radius: 8px;
                 cursor: pointer;
+                transparency: 0.3;
                 transition: background-color 0.3s, transform 0.3s;
             }
             .btn:hover {
                 transform: scale(1.05);
+                transparency: 0.3;
             }
             .btn-start {
-                background-color: #99C24D; /* MIT Celadon */
-                border: 2px solid #99C24D;
+                background-color: #D0ECB5; /* MIT Celadon */
+                border: 2px solid #D0ECB5;
                 padding: 10px;
                 margin: 50px;
                 color: black;
+                transparency: 0.3;
             }
             .btn-start:hover {
-                background-color: #7BA035;
+                background-color: #A5BB91;
+                transparency: 0.3;
             }
             .btn-interpret {
-                background-color: #99C24D; 
-                border: 2px solid #99C24D;
+                background-color: #D0ECB5; 
+                border: 2px solid #D0ECB5;
                 margin: 30px;
                 color: black;
                 padding: 10px 20px; /* Add padding for better appearance */
@@ -96,18 +103,22 @@ index_string = '''
                 border-radius: 8px; /* Add border radius for consistent button style */
                 cursor: pointer;
                 transition: background-color 0.3s, transform 0.3s;
+                transparency: 0.3;
             }
             .btn-interpret:hover {
-                background-color: #7BA035;
+                background-color: #A5BB91;
+                transparency: 0.3;
             }
             .btn-stop {
                 background-color: #E2725B; /* Terracotta Ocre */
                 border: 2px solid #E2725B;
                 margin: 30px;
                 color: white;
+                transparency: 0.3;
             }
             .btn-stop:hover {
                 background-color: #B55A46;
+                transparency: 0.3;
             }
             .btn-transparent {
                 background-color: transparent;
@@ -152,24 +163,38 @@ index_string = '''
                 text-align: center;
                 font-size: 2em;
             }
-            .hexagram-detail {
+            .uniform-text {
                 color: white;
-                text-align: justify; /* Use 'left' if you prefer left alignment */
+                text-align: left; /* Uniform text alignment */
+                font-size: 1.2em; /* Uniform font size */
                 width: 100%;
             }
+            .hexagram-detail {
+                text-align: left; /* Uniform text alignment */
+                font-size: 1.2em; /* Uniform font size */
+            }
             .hexagram-section {
-                color: white;
-                text-align: justify; /* Use 'left' if you prefer left alignment */
-                width: 100%;
+                text-align: left; /* Uniform text alignment */
+                font-size: 1.2em; /* Uniform font size */
+            }
+            #interpretation-output {
+                text-align: left; /* Uniform text alignment */
+                font-size: 1.2em; /* Uniform font size */
             }
             .line-recap {
                 position: absolute;
-                left: 10px;
-                top: 20%;
+                left: 10%;
+                top: 24%;
                 color: white;
-                text-align: left;
+                text-align: center;
                 max-width: 200px;
             }
+
+            .hidden {
+                opacity: 0;
+                transition: opacity 0.5s ease;
+            }
+
             .line-type {
                 margin-top: 20px;
             }
