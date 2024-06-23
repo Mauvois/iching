@@ -121,6 +121,21 @@ def get_interpretation(question, iching_response):
         return result['interpretation']
     return f"Error: {result['error']}"
 
+
+def extract_text(children):
+    texts = []
+    if isinstance(children, list):
+        for child in children:
+            texts.extend(extract_text(child))
+    elif isinstance(children, dict):
+        if 'props' in children and 'children' in children['props']:
+            texts.extend(extract_text(children['props']['children']))
+        elif 'children' in children:
+            texts.extend(extract_text(children['children']))
+    elif isinstance(children, str):
+        texts.append(children)
+    return texts
+
 # Callbacks
 
 
@@ -279,29 +294,79 @@ def update_display(timer_output):
 )
 def provide_interpretation(n_clicks, question, hexagram_output):
     if n_clicks > 0 and question and hexagram_output:
-        iching_response_parts = []
-
-        def extract_text(children):
-            texts = []
-            if isinstance(children, list):
-                for child in children:
-                    texts.extend(extract_text(child))
-            elif isinstance(children, dict):
-                if 'props' in children and 'children' in children['props']:
-                    texts.extend(extract_text(children['props']['children']))
-                elif 'children' in children:
-                    texts.extend(extract_text(children['children']))
-            elif isinstance(children, str):
-                texts.append(children)
-            return texts
-
         iching_response_parts = extract_text(hexagram_output)
-        iching_response = ' '.join(iching_response_parts).strip()
 
-        if not iching_response:
+        # Extract judgment and all traits from iching_response_parts
+        judgment = ""
+        traits = []
+        for part in iching_response_parts:
+            if "Hexagram Number" in part:
+                continue  # Skip hexagram number
+            elif "Judgment" in part:
+                judgment = part.split("Judgment: ")[-1]
+            else:
+                traits.append(part)
+
+        # Ensure that extracted judgment and traits are valid
+        if not judgment:
             return "Error: Invalid I Ching response format."
 
+        print(f"Extracted Judgment: {judgment}")
+        print(f"Extracted Traits: {traits}")
+        print(f"Lines: {lines}")
+
+        # Mapping from line values to French words
+        line_to_word = {
+            6: 'six',
+            7: 'sept',
+            8: 'huit',
+            9: 'neuf'
+        }
+
+        # Positions in French for matching
+        positions = [
+            "au commencement",
+            "à la deuxième place",
+            "à la troisième place",
+            "à la quatrième place",
+            "à la cinquième place",
+            "en haut"
+        ]
+
+        # Filter traits based on the drawn lines
+        filtered_traits = []
+        for i, line in enumerate(lines):
+            line_word = line_to_word.get(line, "")
+            position = positions[i]
+            print(
+                f"Processing line {i+1} with value {line} ({line_word}) at position {position}")
+            for trait in traits:
+                trait_cleaned = trait.lower().strip()  # Clean the trait
+                line_word_cleaned = line_word.lower().strip()  # Clean the line word
+                position_cleaned = position.lower().strip()  # Clean the position
+
+                if line_word_cleaned in trait_cleaned and position_cleaned in trait_cleaned:
+                    filtered_traits.append(trait)
+                    print(f"Matched Trait: {trait}")
+                    break
+                else:
+                    print(
+                        f"No match for line {i+1} with value {line_word_cleaned} at position {position_cleaned} in trait: {trait_cleaned}")
+
+        print(f"Filtered Traits: {filtered_traits}")
+
+        # Use only the judgment if no matching traits are found
+        if not filtered_traits:
+            iching_response = f"Judgment: {judgment}"
+        else:
+            iching_response = f"Judgment: {judgment} " + \
+                " ".join(filtered_traits)
+
+        print(f"Formatted I Ching Response: {iching_response}")
+
         interpretation = get_interpretation(question, iching_response)
+        print(f"Interpretation Result: {interpretation}")
+
         return interpretation
 
     return ""
