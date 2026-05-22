@@ -1,117 +1,94 @@
-# IChing Project
+# IChing
 
-## Overview
+Application I Ching en architecture microservices:
 
-IChing is a web application that brings the ancient Chinese oracle, the **I Ching** (Book of Changes), into the modern digital age. Built using Dash for the front end, FastAPI for the back end, and DuckDB for efficient storage and querying, this app allows users to interact with the I Ching through a simple and intuitive interface.
+- `iching_front` (Dash): UX, tirage, affichage du resultat
+- `iching_back` (FastAPI + DuckDB): generation des lignes et resolution des hexagrammes
+- `iching_interpreter` (FastAPI + OpenAI): interpretation IA
 
-Users can pose a question to the oracle, and a randomized process is used to generate a hexagram based on the question. The resulting hexagram is then sent to ChatGPT via Langchain, which provides a contemporary interpretation of the oracle's response.
+## Lancer en local avec Docker Compose
 
-## Features
+### 1) Prerequis
 
-- **User Interaction**: Users can enter their question and interact with a simulation of the I Ching's traditional coin-toss method to generate hexagrams.
-- **Hexagram Generation**: Six lines are constructed based on user interaction and a random procedure to form one of the 64 possible hexagrams.
-- **Interpretation**: The generated hexagram is sent to a Langchain-powered service that uses ChatGPT to provide a modern interpretation of the ancient text.
-- **Microservice Architecture**: The application uses a FastAPI backend to handle the logic and a separate Langchain microservice for generating interpretations via ChatGPT.
+- Docker ou Podman avec plugin Compose
+- reseau Docker externe `edge_net` partage avec le conteneur `cloudflared`
 
-## Architecture
+Creation du reseau (une seule fois):
 
-- **Front End**: Built with Dash, providing a responsive and interactive user interface. It manages user inputs and displays the results.
-- **Back End**: Implemented with FastAPI, which handles API requests for generating hexagram lines and retrieving interpretations.
-- **Database**: DuckDB is used for storing data related to hexagrams and user interactions efficiently.
-- **Langchain Service**: A separate microservice using Langchain connects to ChatGPT, providing nuanced and contextual interpretations.
+```bash
+docker network create edge_net
+```
 
-## Installation
+### 2) Configuration
 
-### Prerequisites
+Copiez le fichier d'exemple:
 
-- Python 3.8 or higher
-- Node.js (for building frontend assets if modified)
-- Docker (optional, for containerized deployment)
+```bash
+cp .env.example .env
+```
 
-### Steps
+Puis renseignez au minimum `OPENAI_API_KEY` dans `.env`.
 
-1. **Clone the Repository**:
-    ```bash
-    git clone https://github.com/yourusername/iching.git
-    cd iching
-    ```
+### 3) Demarrage
 
-2. **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+```bash
+docker compose up --build
+```
 
-3. **Set Environment Variables**:
-    Define the following environment variables for connecting to backend services:
+Ou avec Podman:
 
-    - `BACKEND_API_URL`: URL for the FastAPI backend service.
-    - `INTERPRETATION_API_URL`: URL for the Langchain interpretation microservice.
+```bash
+podman compose up --build
+```
 
-4. **Run the Application**:
-    ```bash
-    python front.py
-    ```
-    The application will start on `http://0.0.0.0:8050` by default.
+## Acces
 
-## Usage
+- debug local frontend: `http://localhost:18050` (modifiable avec `PORT_FRONT`)
+- acces public via Cloudflare Tunnel sur ton sous-domaine
 
-1. **Enter a Question**: On the homepage, users can enter a question for the oracle in the input field provided.
-2. **Generate Hexagram**: By clicking on the "Alea Jacta Est" button, users start the process of generating hexagram lines. The app simulates the traditional coin toss six times to generate a hexagram.
-3. **Interpretation**: Once the hexagram is generated, users can click on the "Get Interpretation" button to receive a modern interpretation of their hexagram from ChatGPT.
+Les services `iching_back` et `iching_interpreter` ne sont **pas** exposes sur l'hote. Ils communiquent uniquement via le reseau interne Compose.
 
-## Development
+## Variables d'environnement
 
-### Frontend
+- `PORT_FRONT` (defaut `18050`): port host pour debug local du frontend
+- `OPENAI_API_KEY`: cle API OpenAI (obligatoire pour `/interpret`)
+- `OPENAI_MODEL` (defaut `gpt-4o-mini`)
 
-The frontend is built with Dash. To make changes:
+## Architecture reseau
 
-- Modify the `front.py` file for layout and callback changes.
-- Use CSS for styling located in the `styles.py` file.
+- `iching_front` appelle:
+  - `http://iching_back:8080`
+  - `http://iching_interpreter:8080`
+- `iching_back` et `iching_interpreter` sont en `expose: 8080` uniquement (interne)
+- `iching_front` est attache a:
+  - `iching_net` (interne app)
+  - `edge_net` (partage avec cloudflared)
 
-### Backend
+## Cloudflared (exemple)
 
-The backend logic is handled by a FastAPI application:
+Route le sous-domaine IChing vers le nom de service Docker:
 
-- The backend processes the random number generation and constructs hexagrams based on user interactions.
-- It communicates with the Langchain service to fetch interpretations.
+```yaml
+ingress:
+  - hostname: iching.example.com
+    service: http://iching_front:8050
+  - service: http_status:404
+```
 
-### Langchain Microservice
+Le conteneur cloudflared doit etre connecte au reseau `edge_net`.
 
-The microservice that connects with ChatGPT is hosted separately. For more details, see the repository: [Langchain Interpreter](https://github.com/Mauvois/interpreter).
+## Smoke tests rapides
 
-## Deployment
+Puis faites un parcours UI complet:
 
-### Docker
+1. saisir une question
+2. lancer le tirage et completer 6 lignes
+3. verifier l'affichage hexagramme
+4. cliquer sur interpretation
 
-1. **Build Docker Image**:
-    ```bash
-    docker build -t iching-app .
-    ```
+## Arborescence
 
-2. **Run Docker Container**:
-    ```bash
-    docker run -d -p 8050:8050 iching-app
-    ```
-
-### Cloud Deployment
-
-- **Google Cloud Run**: The FastAPI backend and Langchain services are suitable for deployment on platforms like Google Cloud Run.
-- **Heroku**: Use Docker-based deployments for Heroku to run the complete stack.
-
-## Contributing
-
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
-3. Commit your changes (`git commit -am 'Add new feature'`).
-4. Push to the branch (`git push origin feature-branch`).
-5. Create a new Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- **I Ching Community**: For the timeless wisdom and insights provided by the Book of Changes.
-- **OpenAI**: For providing the underlying language model that powers modern interpretations.
-- **Dash & FastAPI**: For creating powerful frameworks that facilitate rapid development of web applications.
+- `frontend/front.py`
+- `backend/main.py`
+- `services/interpreter/app.py`
+- `docker-compose.yml`

@@ -1,0 +1,47 @@
+services:
+  iching_front:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    environment:
+      BACKEND_API_URL: http://iching_back:8080
+      INTERPRETATION_API_URL: http://iching_interpreter:8080
+      PORT: 8050
+    depends_on:
+      - iching_back
+      - iching_interpreter
+    ports:
+      - "${PORT_FRONT:-18050}:8050"
+    restart: unless-stopped
+    networks:
+      - iching_net
+      - edge_net
+
+  iching_back:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    expose:
+      - "8080"
+    restart: unless-stopped
+    networks:
+      - iching_net
+
+  iching_interpreter:
+    build:
+      context: .
+      dockerfile: services/interpreter/Dockerfile
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+    expose:
+      - "8080"
+    restart: unless-stopped
+    networks:
+      - iching_net
+
+networks:
+  iching_net:
+    driver: bridge
+  edge_net:
+    external: true
