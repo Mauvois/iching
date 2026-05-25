@@ -7,9 +7,9 @@ steps:
       - pip install --no-cache-dir -r services/interpreter/requirements.txt
       - python -m py_compile frontend/front.py backend/main.py services/interpreter/app.py
     when:
-      event: push
-      branch:
-        - main
+      event:
+        - push
+        - pull_request
 
   deploy_prod:
     image: docker:27-cli
