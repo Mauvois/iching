@@ -32,6 +32,7 @@ steps:
       - export OPENAI_MODEL="${OPENAI_MODEL:-$OPENAI_MODEL_FALLBACK}"
       - export OPENAI_MODEL="${OPENAI_MODEL:-gpt-4o-mini}"
       - export PORT_FRONT=18050
+      - docker network inspect edge_net >/dev/null 2>&1 || docker network create edge_net
       - test -n "$OPENAI_API_KEY" || (echo "missing required secret OPENAI_API_KEY" && exit 1)
       - trap 'docker compose --env-file .env.ci -f docker-compose.yml -f docker-compose.ci.yml down -v --remove-orphans || true; rm -f .env.ci' EXIT
       - printf 'OPENAI_API_KEY=%s\nOPENAI_MODEL=%s\nPORT_FRONT=%s\n' "$OPENAI_API_KEY" "$OPENAI_MODEL" "$PORT_FRONT" > .env.ci
