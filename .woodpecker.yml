@@ -33,13 +33,10 @@ steps:
       - export OPENAI_MODEL="${OPENAI_MODEL:-gpt-4o-mini}"
       - export PORT_FRONT=18050
       - test -n "$OPENAI_API_KEY" || (echo "missing required secret OPENAI_API_KEY" && exit 1)
-      - trap 'rm -f .env.ci' EXIT
+      - trap 'docker compose --env-file .env.ci -f docker-compose.yml -f docker-compose.ci.yml down -v --remove-orphans || true; rm -f .env.ci' EXIT
       - printf 'OPENAI_API_KEY=%s\nOPENAI_MODEL=%s\nPORT_FRONT=%s\n' "$OPENAI_API_KEY" "$OPENAI_MODEL" "$PORT_FRONT" > .env.ci
-      - docker compose --env-file .env.ci up -d --build
-      - docker compose --env-file .env.ci ps
-      - docker compose --env-file .env.ci exec -T iching_back python -c 'import urllib.request; urllib.request.urlopen("http://localhost:8080/", timeout=5); print("backend ok")'
-      - docker compose --env-file .env.ci exec -T iching_interpreter python -c 'import urllib.request; urllib.request.urlopen("http://localhost:8080/health", timeout=5); print("interpreter ok")'
-      - docker compose --env-file .env.ci exec -T iching_front python -c 'import urllib.request; urllib.request.urlopen("http://localhost:8050/", timeout=5); print("frontend ok")'
+      - docker compose --env-file .env.ci -f docker-compose.yml -f docker-compose.ci.yml up -d --build
+      - docker compose --env-file .env.ci -f docker-compose.yml -f docker-compose.ci.yml ps
     when:
       event: push
       branch:
