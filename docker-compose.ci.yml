@@ -1,4 +1,0 @@
-services:
-  iching_front:
-    networks:
-      - iching_net

@@ -34,10 +34,10 @@ steps:
       - export PORT_FRONT=18050
       - docker network inspect edge_net >/dev/null 2>&1 || docker network create edge_net
       - test -n "$OPENAI_API_KEY" || (echo "missing required secret OPENAI_API_KEY" && exit 1)
-      - trap 'docker compose --env-file .env.ci -f docker-compose.yml -f docker-compose.ci.yml down -v --remove-orphans || true; rm -f .env.ci' EXIT
+      - trap 'rm -f .env.ci' EXIT
       - printf 'OPENAI_API_KEY=%s\nOPENAI_MODEL=%s\nPORT_FRONT=%s\n' "$OPENAI_API_KEY" "$OPENAI_MODEL" "$PORT_FRONT" > .env.ci
-      - docker compose --env-file .env.ci -f docker-compose.yml -f docker-compose.ci.yml up -d --build
-      - docker compose --env-file .env.ci -f docker-compose.yml -f docker-compose.ci.yml ps
+      - docker compose -p iching --env-file .env.ci -f docker-compose.yml up -d --build --remove-orphans
+      - docker compose -p iching --env-file .env.ci -f docker-compose.yml ps
     when:
       event: push
       branch:
