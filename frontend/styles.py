@@ -202,15 +202,15 @@ index_string = '''
                 transparency: 0.3;
             }
             .btn-submit {
-                background-color: transparent;
-                border: 1px solid #8fafc4;
-                color: #8fafc4;
+                background-color: var(--terracotta);
+                border: 2px solid var(--terracotta);
+                color: var(--text-main);
                 margin-top: 10px;
             }
             .btn-submit:hover {
-                background-color: transparent;
-                border-color: #8fafc4;
-                color: #8fafc4;
+                background-color: var(--terracotta-dark);
+                border-color: var(--terracotta-dark);
+                color: var(--text-main);
             }
             .question-label {
                 color: var(--text-main);
@@ -443,6 +443,14 @@ index_string = '''
                 }
                 .line-row {
                     font-size: 0.95em;
+                }
+                .part-1 .question-input-shell {
+                    width: 92%;
+                }
+                .part-1 .btn-submit {
+                    width: 62%;
+                    max-width: 220px;
+                    min-width: 160px;
                 }
             }
         </style>
