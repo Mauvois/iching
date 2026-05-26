@@ -202,15 +202,15 @@ index_string = '''
                 transparency: 0.3;
             }
             .btn-submit {
-                background-color: var(--terracotta);
-                border: 2px solid var(--terracotta);
-                color: var(--text-main);
+                background-color: transparent;
+                border: 1px solid var(--terracotta);
+                color: var(--terracotta);
                 margin-top: 10px;
             }
             .btn-submit:hover {
-                background-color: var(--terracotta-dark);
+                background-color: transparent;
                 border-color: var(--terracotta-dark);
-                color: var(--text-main);
+                color: var(--terracotta-dark);
             }
             .question-label {
                 color: var(--text-main);
