@@ -193,6 +193,9 @@ index_string = '''
                 justify-content: center;
                 font-size: 1.1em;
                 line-height: 1;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+                user-select: none;
             }
             .btn-stop:hover {
                 background-color: var(--terracotta-dark);

@@ -25,8 +25,12 @@ app.layout = html.Div([
         "last_line_type": "",
         "hexagram": None,
         "interpretation_context": "",
+        "phase": "idle",
+        "draw_id": 0,
         "draw_started": False,
-        "piece_stops": [False, False, False]
+        "piece_stops": [False, False, False],
+        "stop_times": [None, None, None],
+        "draw_started_at": None
     }),
     html.Div(id='part-1', className="part-1", children=[
         html.Div(className='question-input-shell', children=[
@@ -70,8 +74,6 @@ app.layout = html.Div([
 ])
 
 # Define global variables
-start_time = None
-stop_times = [None, None, None]
 lines = []
 random_state = None
 
@@ -86,28 +88,32 @@ def api_request(url, json_data):
         return {"error": response.json().get('detail')}
 
 
-def start_timer():
-    global start_time, stop_times
-    start_time = time.time()
-    stop_times = [None, None, None]
-
-
-def stop_timer(index):
-    global start_time, stop_times
-    if start_time is not None:
-        elapsed_time = int((time.time() - start_time) * 1000)
-        stop_times[index] = elapsed_time
-        return elapsed_time
-
-
-def process_line():
-    global stop_times, lines, random_state
+def process_line(stop_times, random_state):
+    global lines
     result = api_request(f"{BACKEND_API_URL}/generate-line",
                          {"times": stop_times, "random_state": random_state})
     if "error" not in result:
         lines.append(result['line_sum'])
         return f"{result['line_type']}, {result['line_sum']}"
     return f"Error: {result['error']}"
+
+
+def reset_draw_state(session_data):
+    session_data["phase"] = "idle"
+    session_data["draw_started"] = False
+    session_data["piece_stops"] = [False, False, False]
+    session_data["stop_times"] = [None, None, None]
+    session_data["draw_started_at"] = None
+
+
+def ensure_session_defaults(session_data):
+    session_data.setdefault("phase", "idle")
+    session_data.setdefault("draw_id", 0)
+    session_data.setdefault("draw_started", False)
+    session_data.setdefault("piece_stops", [False, False, False])
+    session_data.setdefault("stop_times", [None, None, None])
+    session_data.setdefault("draw_started_at", None)
+    return session_data
 
 
 def get_hexagram():
@@ -333,8 +339,12 @@ def submit_question(n_clicks, n_submit, question, session_data):
                 "last_line_type": "",
                 "hexagram": None,
                 "interpretation_context": "",
+                "phase": "idle",
+                "draw_id": 0,
                 "draw_started": False,
-                "piece_stops": [False, False, False]
+                "piece_stops": [False, False, False],
+                "stop_times": [None, None, None],
+                "draw_started_at": None
             }
             return 'part-1 hidden', 'part-2', 'part-3 hidden', f"{question}", f"Question: {question}", session_data
         return 'part-1', 'part-2 hidden', 'part-3 hidden', f"Error: {result['error']}", "", session_data
@@ -356,7 +366,7 @@ def submit_question(n_clicks, n_submit, question, session_data):
     prevent_initial_call=True
 )
 def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks, session_data):
-    global stop_times, random_state
+    global random_state
     ctx = callback_context
 
     if not ctx.triggered:
@@ -365,56 +375,75 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks, sessio
     if not session_data or session_data.get("random_state") is None:
         return "Veuillez poser une question d'abord", "", "", 'part-2', 'part-3 hidden', session_data
 
+    session_data = ensure_session_defaults(session_data)
+
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    now_ms = int(time.time() * 1000)
 
     if button_id == 'start-timer-btn':
-        if session_data.get("draw_started"):
-            current_line = len(session_data.get("line_values", [])) + 1
-            piece_progress = sum(1 for x in session_data.get("piece_stops", []) if x)
+        if session_data.get("phase") in ("drawing", "resolving") or session_data.get("draw_started"):
             return "Tirage déjà en cours", render_live_hexagram(session_data.get("line_values", [])), "", 'part-2', 'part-3 hidden', session_data
-        start_timer()
+        session_data["draw_id"] = int(session_data.get("draw_id", 0)) + 1
+        session_data["phase"] = "drawing"
         session_data["draw_started"] = True
         session_data["piece_stops"] = [False, False, False]
+        session_data["stop_times"] = [None, None, None]
+        session_data["draw_started_at"] = now_ms
         return "Le sort est lancé", render_live_hexagram(session_data.get("line_values", [])), "", 'part-2', 'part-3 hidden', session_data
 
     if 'stop-timer' in button_id:
         try:
-            if not session_data.get("draw_started"):
+            if session_data.get("phase") != "drawing" or not session_data.get("draw_started"):
                 return "Lancez d'abord Alea Jacta Est", render_live_hexagram(session_data.get("line_values", [])), "", 'part-2', 'part-3 hidden', session_data
+
+            draw_started_at = session_data.get("draw_started_at")
+            if not isinstance(draw_started_at, int):
+                reset_draw_state(session_data)
+                return "Tirage réinitialisé: relancez Alea Jacta Est", render_live_hexagram(session_data.get("line_values", [])), "", 'part-2', 'part-3 hidden', session_data
 
             index = int(re.search(r'stop-timer(\d+)-btn',
                         button_id).group(1)) - 1
             piece_stops = session_data.get("piece_stops", [False, False, False])
+            stop_times = session_data.get("stop_times", [None, None, None])
+
+            if not isinstance(piece_stops, list) or len(piece_stops) != 3:
+                piece_stops = [False, False, False]
+            if not isinstance(stop_times, list) or len(stop_times) != 3:
+                stop_times = [None, None, None]
+
             if piece_stops[index]:
                 return f"Pièce {index + 1} déjà stoppée", render_live_hexagram(session_data.get("line_values", [])), "", 'part-2', 'part-3 hidden', session_data
 
-            elapsed_time = stop_timer(index)
-            if elapsed_time is not None:
-                piece_stops[index] = True
-                session_data["piece_stops"] = piece_stops
-                if all(time_value is not None for time_value in stop_times):
-                    random_state = session_data.get("random_state")
-                    result = process_line()
-                    stop_times = [None, None, None]
-                    session_data["draw_started"] = False
-                    session_data["piece_stops"] = [False, False, False]
-                    if "Error:" in result:
-                        return result, render_live_hexagram(session_data.get("line_values", [])), "", 'part-2', 'part-3 hidden', session_data
+            elapsed_time = max(0, now_ms - draw_started_at)
+            piece_stops[index] = True
+            stop_times[index] = elapsed_time
+            session_data["piece_stops"] = piece_stops
+            session_data["stop_times"] = stop_times
 
-                    session_data["line_values"] = list(lines)
-                    session_data["last_line_type"] = result
-                    line_recap = render_live_hexagram(session_data["line_values"])
+            if all(time_value is not None for time_value in stop_times):
+                session_data["phase"] = "resolving"
+                random_state = session_data.get("random_state")
+                result = process_line(stop_times, random_state)
+                reset_draw_state(session_data)
+                if "Error:" in result:
+                    return result, render_live_hexagram(session_data.get("line_values", [])), "", 'part-2', 'part-3 hidden', session_data
 
-                    if len(lines) == 6:
-                        hexagram = get_hexagram()
-                        session_data["hexagram"] = hexagram
-                        session_data["interpretation_context"] = build_interpretation_context(lines, hexagram)
-                        final_recap = render_annotated_hexagram_lines(session_data["line_values"], finalized=True)
-                        return result, final_recap, render_hexagram_details(hexagram, lines), 'part-2 hidden', 'part-3', session_data
+                session_data["line_values"] = list(lines)
+                session_data["last_line_type"] = result
+                line_recap = render_live_hexagram(session_data["line_values"])
 
-                    return result, line_recap, "", 'part-2', 'part-3 hidden', session_data
-                return f"Pièce {index + 1} stoppée", render_live_hexagram(session_data.get("line_values", [])), "", 'part-2', 'part-3 hidden', session_data
+                if len(lines) == 6:
+                    hexagram = get_hexagram()
+                    session_data["hexagram"] = hexagram
+                    session_data["interpretation_context"] = build_interpretation_context(lines, hexagram)
+                    final_recap = render_annotated_hexagram_lines(session_data["line_values"], finalized=True)
+                    return result, final_recap, render_hexagram_details(hexagram, lines), 'part-2 hidden', 'part-3', session_data
+
+                return result, line_recap, "", 'part-2', 'part-3 hidden', session_data
+
+            return f"Pièce {index + 1} stoppée", render_live_hexagram(session_data.get("line_values", [])), "", 'part-2', 'part-3 hidden', session_data
         except (IndexError, ValueError) as e:
+            reset_draw_state(session_data)
             return f"Error processing timer: {str(e)}", render_live_hexagram(session_data.get("line_values", [])), "", 'part-2', 'part-3 hidden', session_data
 
     return "", render_live_hexagram(session_data.get("line_values", [])), "", 'part-2', 'part-3 hidden', session_data
@@ -431,9 +460,12 @@ def manage_timers(start_clicks, stop1_clicks, stop2_clicks, stop3_clicks, sessio
     Input('session-store', 'data')
 )
 def update_display(session_data):
-    line_values = (session_data or {}).get("line_values", [])
-    draw_started = (session_data or {}).get("draw_started", False)
-    piece_stops = (session_data or {}).get("piece_stops", [False, False, False])
+    session_data = ensure_session_defaults(session_data or {})
+    line_values = session_data.get("line_values", [])
+    draw_started = session_data.get("phase") == "drawing" and session_data.get("draw_started", False)
+    piece_stops = session_data.get("piece_stops", [False, False, False])
+    if not isinstance(piece_stops, list) or len(piece_stops) != 3:
+        piece_stops = [False, False, False]
     line_type_output_style = {'display': 'none'}
     hidden_style = {'display': 'none'}
     interpretation_button_style = {'display': 'none'}
