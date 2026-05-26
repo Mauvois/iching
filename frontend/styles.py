@@ -203,13 +203,13 @@ index_string = '''
             }
             .btn-submit {
                 background-color: transparent;
-                border: 1px solid var(--terracotta);
+                border: 0;
                 color: var(--terracotta);
                 margin-top: 10px;
             }
             .btn-submit:hover {
                 background-color: transparent;
-                border-color: var(--terracotta-dark);
+                border: 0;
                 color: var(--terracotta-dark);
             }
             .question-label {
